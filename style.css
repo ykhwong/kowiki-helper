@@ -1,0 +1,96 @@
+* {
+		font-family: sans-serif;
+}
+
+a {
+	text-decoration:none;
+}
+
+body {
+	width : 520px;
+	min-height:250px;
+}
+
+#logo {
+	position:absolute;
+	top:45px;
+	left:10px;
+}
+
+#convert_start {
+	width:520px;
+	height:20px;
+	position:absolute;
+	top:5px;
+	left:5px;
+	overflow-y: hidden;
+	cursor:pointer;
+}
+
+#copy {
+	width:520px;
+	height:20px;
+	position:absolute;
+	top:5px;
+	left:70px;
+}
+
+#result {
+	width:520px;
+	height:230px;
+	position:absolute;
+	top:25px;
+	left:0px;
+	overflow-y: scroll;
+}
+
+#convert_box {
+	width:500px;
+	height:20px;
+	position:absolute;
+	top:5px;
+	left:270px;
+}
+
+#intro1 {
+	width:350px;
+	height:20px;
+	position:absolute;
+	top:40px;
+	left:215px;
+}
+
+#intro2 {
+	width:350px;
+	height:20px;
+	position:absolute;
+	top:85px;
+	left:215px;
+}
+
+#link1 {
+	width:350px;
+	height:20px;
+	position:absolute;
+	top:190px;
+	left:215px;
+	cursor:pointer;
+}
+
+#link2 {
+	width:350px;
+	height:20px;
+	position:absolute;
+	top:210px;
+	left:215px;
+	cursor:pointer;
+}
+
+#link3 {
+	width:350px;
+	height:20px;
+	position:absolute;
+	top:230px;
+	left:215px;
+	cursor:pointer;
+}
