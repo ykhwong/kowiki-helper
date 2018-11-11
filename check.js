@@ -1,16 +1,27 @@
 var date_hash = `
 	"January" => "1월",
+	"Jan" => "1월",
 	"February" => "2월",
+	"Feb" => "2월",
 	"March" => "3월",
+	"Mar" => "3월",
 	"April" => "4월",
+	"Apr" => "4월",
 	"May" => "5월",
 	"June" => "6월",
+	"Jun" => "6월",
 	"July" => "7월",
+	"Jul" => "7월",
 	"August" => "8월",
+	"Aug" => "8월",
 	"September" => "9월",
+	"Sep" => "9월",
 	"October" => "10월",
+	"Oct" => "10월",
 	"November" => "11월",
-	"December" => "12월"
+	"Nov" => "11월",
+	"December" => "12월",
+	"Dec" => "12월"
 `;
 
 var country_hash = `
