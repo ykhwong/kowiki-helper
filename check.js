@@ -426,6 +426,10 @@ function convert(content) {
 				var dest = "\$2년 " + ko_month + " \$1일";
 				re = new RegExp(source, "g");
 				content = content.replace(re, dest);
+				source = "(\\d|\\d\\d) +" + en_month + " +(\\d\\d\\d\\d)";
+				dest = "\$2년 " + ko_month + " \$1일";
+				re = new RegExp(source, "g");
+				content = content.replace(re, dest);
 			}
 		}
 	}
