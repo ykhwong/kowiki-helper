@@ -35,6 +35,15 @@ body {
 	left:70px;
 }
 
+#get_weather_template {
+	width:520px;
+	height:20px;
+	position:absolute;
+	top:5px;
+	left:70px;
+	cursor:pointer;
+}
+
 #result {
 	width:520px;
 	height:230px;
