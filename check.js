@@ -76,7 +76,8 @@ var country_hash = `
 	"Arizona" => "애리조나주",
 	"Alaska" => "알래스카주",
 	"Hawaii" => "하와이주",
-	/* Countries */
+	"District of Columbia" => "컬럼비아 특별구",
+	<!-- Countries -->
 	"Channel Islands" => "채널 제도",
 	"Soviet Union" => "소비에트연방",
 	"Saint Martin" => "세인트마틴 섬",
