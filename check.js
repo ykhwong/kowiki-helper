@@ -25,6 +25,58 @@ var date_hash = `
 `;
 
 var country_hash = `
+	<!-- US counties -->
+	"Delaware" => "델라웨어주",
+	"Pennsylvania" => "펜실베이니아주",
+	"New Jersey" => "뉴저지주",
+	"Georgia \\(U\\.S\\. state\\)" => "조지아주",
+	"Connecticut" => "코네티컷주",
+	"Massachusetts" => "매사추세츠주",
+	"Maryland" => "메릴랜드주",
+	"South Carolina" => "사우스캐롤라이나주",
+	"New Hampshire" => "뉴햄프셔주",
+	"Virginia" => "버지니아주",
+	"New York" => "뉴욕주",
+	"North Carolina" => "노스캐롤라이나주",
+	"Rhode Island" => "로드아일랜드주",
+	"Vermont" => "버몬트주",
+	"Kentucky" => "켄터키주",
+	"Tennessee" => "테네시주",
+	"Ohio" => "오하이오주",
+	"Louisiana" => "루이지애나주",
+	"Indiana" => "인디애나주",
+	"Mississippi" => "미시시피주",
+	"Illinois" => "일리노이주",
+	"Alabama" => "앨라배마주",
+	"Maine" => "메인주",
+	"Missouri" => "미주리주",
+	"Arkansas" => "아칸소주",
+	"Michigan" => "미시간주",
+	"Florida" => "플로리다주",
+	"Texas" => "텍사스주",
+	"Iowa" => "아이오와주",
+	"Wisconsin" => "위스콘신주",
+	"California" => "캘리포니아주",
+	"Minnesota" => "미네소타주",
+	"Oregon" => "오리건주",
+	"Kansas" => "캔자스주",
+	"West Virginia" => "웨스트버지니아주",
+	"Nevada" => "네바다주",
+	"Nebraska" => "네브래스카주",
+	"Colorado" => "콜로라도주",
+	"North Dakota" => "노스다코타주",
+	"South Dakota" => "사우스다코타주",
+	"Montana" => "몬태나주",
+	"Washington" => "워싱턴주",
+	"Idaho" => "아이다호주",
+	"Wyoming" => "와이오밍주",
+	"Utah" => "유타주",
+	"Oklahoma" => "오클라호마주",
+	"New Mexico" => "뉴멕시코주",
+	"Arizona" => "애리조나주",
+	"Alaska" => "알래스카주",
+	"Hawaii" => "하와이주",
+	/* Countries */
 	"Channel Islands" => "채널 제도",
 	"Soviet Union" => "소비에트연방",
 	"Saint Martin" => "세인트마틴 섬",
@@ -352,6 +404,12 @@ var country_hash = `
 	"Heard Island and McDonald Islands" => "허드 맥도널드 제도",
 	"Pitcairn Islands" => "핏케언 제도"
 `;
+var filmCode="0";
+
+function preRender() {
+	//return false;
+	return true;
+}
 
 function init() {
 	$('#logo').show();
@@ -404,8 +462,16 @@ function get_source(pageURL){
 		return url;
 
 	} else {
-		alert("한국어 위키백과 웹사이트에 접속되지 않은 상태입니다.\n빈 공간에서 작업합니다.");
-		return 1;
+		re = new RegExp('^https:\/\/movie\.naver\.com\/movie\/bi\/mi\/(basic|detail)\.nhn\\?code=\\d+');
+		if (re.exec(url)) {
+			let grps = url.match(/code=(\d+)/);
+			filmCode = grps[1];
+			url = url.replace("/basic.nhn", "/detail.nhn");
+			return url;
+		} else {
+			alert("한국어 위키백과 웹사이트에 접속되지 않은 상태입니다.\n빈 공간에서 작업합니다.");
+			return 1;
+		}
 	}
 	if (error == 1) {
 		alert("s");
@@ -449,6 +515,233 @@ function convert(content) {
 	return content;
 }
 
+function convert2(content) {
+	let lines = content.replace(/\r/g, "").split(/\n/);
+	let allowed=false;
+	let lineStat = "";
+	let retData = "";
+	let genre = "";
+	let mData = {
+		title : "", // 제목
+		engTitle : "", // 영제
+		year: "", // 연도
+		country: "", // 국가
+		director : "", // 감독
+		type : [], // 종류
+		actorStar : [], // 주연
+		actorSupport : [], // 조연
+		written : [], // 각본
+		orig : [], // 원안
+		produce : [], // 제작
+		plan: [], // 기획
+		shooter : [], // 촬영
+		music : [], // 음악
+		artDirector: [], // 아트디렉터
+		editor: [], // 편집
+		etc: [] // 기타
+	}
+	for (let i=0; i<lines.length; i++) {
+		let line = lines[i];
+		if (/mv_info_area/.test(line)) {
+			allowed=true;
+			continue;
+		}
+		if (!allowed) {
+			continue;
+		}
+		if (/<!-- 주연 -->/.test(line)) {
+			lineStat = "주연";
+			continue;
+		}
+		if (/<!-- 조연 -->/.test(line)) {
+			lineStat = "조연";
+			continue;
+		}
+
+		if (/ N=a:ifo\.title /.test(line)) {
+			line = line.replace(/.*">/, "");
+			line = line.replace(/<\/a.*/, "");
+			mData.title = line;
+			continue;
+		}
+		if (/"h_movie2"/.test(line)) {
+			line = line.replace(/.*title="/, "");
+			line = line.replace(/".*>/, "");
+			if (/, +\d+$/.test(line)) {
+				let engTitle = line;
+				let year;
+				engTitle = engTitle.replace(/, +\d+$/, "");
+				year = line.replace(engTitle, "").replace(/^,\s*/, "");
+				mData.engTitle = engTitle;
+				mData.year = year;
+			} else {
+				mData.engTitle = line;
+			}
+			continue;
+		}
+		if (/ N=a:ifo\.genre /.test(line)) {
+			line = line.replace(/.*">/, "");
+			line = line.replace(/<\/a.*/, "");
+			mData.type.push(line);
+			continue;
+		}
+		if (/ N=a:ifo\.nation /.test(line)) {
+			line = line.replace(/.*">/, "");
+			line = line.replace(/<\/a.*/, "");
+			mData.country = line;
+			continue;
+		}
+		if (/ N=a:ifo\.director /.test(line)) {
+			line = line.replace(/.*">/, "");
+			line = line.replace(/<\/a.*/, "");
+			mData.director = line;
+			continue;
+		}
+		if (/ N=a:act\.name /.test(line)) {
+			line = line.replace(/.*">/, "");
+			line = line.replace(/<\/a.*/, "");
+			if (lineStat == "주연") {
+				mData.actorStar.push(line);
+			}
+			//else {
+			//	mData.actorSupport.push(line);
+			//}
+			continue;
+		}
+		if (/"p_info"/.test(line)) {
+			if (lineStat == "조연") {
+				line = lines[i+1];
+				line = line.replace(/.* title="/, "");
+				line = line.replace(/" *class="k_.*/, "");
+				mData.actorSupport.push(line);
+			}
+		}
+
+		if (/ N=a:sta\.name /.test(line)) {
+			let line2 = line;
+			let line3 = line.replace(/.*<em>/, "").replace(/<\/em.*/, "");
+			line2 = line.replace(/.*">/, "");
+			line2 = line2.replace(/<\/a.*/, "").replace(/^\t+/, "").replace(/<.*/, "");
+			if (/<em>\(각본\)<\/em>/.test(line)) {
+				mData.written.push(line2);
+			} else if (/<em>\(원안\)<\/em>/.test(line)) {
+				mData.orig.push(line2);
+			} else if (/<em>\(제작\)<\/em>/.test(line)) {
+				mData.produce.push(line2);
+			} else if (/<em>\(기획\)<\/em>/.test(line)) {
+				mData.plan.push(line2);
+			} else if (/<em>\(촬영\)<\/em>/.test(line)) {
+				mData.shooter.push(line2);
+			} else if (/<em>\(음악\)<\/em>/.test(line)) {
+				mData.music.push(line2);
+			} else if (/<em>\(아트디렉터\)<\/em>/.test(line)) {
+				mData.artDirector.push(line2);
+			} else if (/<em>\(편집\)<\/em>/.test(line)) {
+				mData.editor.push(line2);
+			} else {
+				line3 = line3.replace(/^\(/, "").replace(/\)$/, "");
+				mData.etc.push(line3 + ": " + line2);
+			}
+			continue;
+		}
+	}
+	//alert(JSON.stringify(mData));
+	//let mData = {
+	//	title : "", // 제목
+	//	engTitle : "", // 영제
+	//	year: "", // 연도
+	//	country: "", // 국가
+	//	director : "", // 감독
+	//	type : [], // 종류
+	//	actorStar : [], // 주연
+	//	actorSupport : [], // 조연
+	//	written : [], // 각본
+	//	orig : [], // 원안
+	//	produce : [], // 제작
+	//	plan: [], // 기획
+	//	shooter : [], // 촬영
+	//	music : [], // 음악
+	//	artDirector: [], // 아트디렉터
+	//	editor: [], // 편집
+	//	etc: [] // 기타
+	//}
+
+	if (!/\S/.test(mData.year)) {
+		mData.year = mData.engTitle;
+		mData.engTitle = "";
+	}
+	//mData.engTitle = mData.engTitle.trim();
+
+	retData = "{{영화 정보\n";
+	retData += "| 제목 = " + mData.title + "\n";
+	retData += "| 원제 = " + mData.engTitle + "\n";
+	retData += "| 국가 = " + mData.country + "\n";
+	retData += "| 그림 = \n";
+	retData += "| 그림설명 = \n";
+	retData += "| 장르 = " + mData.type.join(", ") + "\n";
+	retData += "| 감독 = [[" + mData.director + "]]\n";
+	retData += "| 제작 = " + (mData.produce==""?"": mData.produce.join(", ")) + "\n";
+	retData += "| 원작 = " + mData.orig.join(", ") + "\n";
+	retData += "| 각본 = " + mData.written.join(", ") + "\n";
+	retData += "| 출연 = " + mData.actorStar.join(", ") + "\n";
+	retData += "| 음악 = " + mData.music.join(", ") + "\n";
+	retData += "| 촬영 = " + mData.shooter.join(", ") + "\n";
+	retData += "| 편집 = " + mData.editor.join(", ") + "\n";
+	retData += "| 시간 = \n";
+	retData += "| 개봉 = \n";
+	retData += "}}\n";
+	retData += "《'''" + mData.title + "'''》" + (mData.engTitle == ""?"":"(" + mData.engTitle + ")") + "는 " + mData.country + "에서 제작된 [[" + mData.director + "]] 감독의 "
+	+ mData.year + "년 ";
+	retData += mData.type.join(", ");
+	if (/\S/.test(mData.type)) {
+		retData += " ";
+	}
+	retData += "영화이다. [[" + mData.actorStar[0] + "]] 등이 주연으로 출연하였";
+	
+	if(mData.produce == "") {
+		retData += "다.\n\n";
+	} else {
+		retData += "고 [[" + mData.produce[0] + "]] 등이 제작에 참여하였다.\n\n";
+	}
+
+	retData += "== 출연 ==\n";
+	retData += "=== 주연 ===\n";
+	for (let i=0; i<mData.actorStar.length; i++) {
+		retData += "* [[" + mData.actorStar[i] + "]]\n";
+	}
+	retData += "\n";
+	if (mData.actorSupport.length > 0) {
+		retData += "=== 조연 ===\n";
+		for (let i=0; i<mData.actorSupport.length; i++) {
+			retData += "* [[" + mData.actorSupport[i] + "]]\n";
+		}
+		retData += "\n";
+	}
+	if (mData.etc.length > 0) {
+		retData += "== 기타 ==\n";
+		for (let i=0; i<mData.etc.length; i++) {
+			retData += "* " + mData.etc[i] + "\n";
+		}
+		retData += "\n";
+	}
+	
+	retData += "== 외부 링크 ==\n";
+	retData += "* {{네이버 영화|" + filmCode + "}}\n";
+	retData += "\n";
+
+	///// TMP START
+	retData += "[[분류:" + mData.year + "년 영화]]\n";
+	retData += "[[분류:대한민국의 영화 작품]]\n";
+	retData += "[[분류:한국어 영화 작품]]\n";
+	retData += "\n";
+	///// TMP END
+	
+	/////
+	retData = retData.trim();
+	/////
+	return retData;
+}
+
 $(document).ready(function(){
 	init();
 
@@ -468,13 +761,26 @@ $(document).ready(function(){
 		chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
 			var pageURL = tabs[0].url;
 			var str = get_source(pageURL);
+			re = new RegExp('^https:\/\/movie\.naver\.com\/movie\/bi\/mi\/(basic|detail)\.nhn\\?code=(\\d+)');
 			conv_init();
 			if (str == 1) {
 				var cont = $("#result").val();
 				$("#result").val(convert(cont));
+				return;
+			}
+			if (re.exec(pageURL)) {
+				$.get(str, function( cont ) {
+					$("#result").val(convert2(cont));
+					$('#result').focus();
+					$('#result').select();
+					document.execCommand('copy');
+				});
 			} else {
 				$.get(str, function( cont ) {
 					$("#result").val(convert(cont));
+					$('#result').focus();
+					$('#result').select();
+					document.execCommand('copy');
 				});
 			}
 		});
