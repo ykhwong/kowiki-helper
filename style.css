@@ -18,7 +18,7 @@ body {
 }
 
 #convert_start {
-	width:520px;
+	width:120px;
 	height:20px;
 	position:absolute;
 	top:5px;
@@ -36,11 +36,20 @@ body {
 }
 
 #get_weather_template {
-	width:520px;
+	width:50px;
 	height:20px;
 	position:absolute;
 	top:5px;
 	left:70px;
+	cursor:pointer;
+}
+
+#get_population_template {
+	width:50px;
+	height:20px;
+	position:absolute;
+	top:5px;
+	left:130px;
 	cursor:pointer;
 }
 

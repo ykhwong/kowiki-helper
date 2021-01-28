@@ -414,7 +414,7 @@ function preRender() {
 
 function init() {
 	$('#logo').show();
-	$('#get_weather_template').show();
+	$('#get_weather_template, #get_population_template').show();
 	$('#copy').hide();
 	$('#result').hide();
 }
@@ -423,7 +423,7 @@ function conv_init() {
 	$('#copy').show();
 	$('#logo').hide();
 	$('#result').show();
-	$('#get_weather_template').hide();
+	$('#get_weather_template, #get_population_template').hide();
 }
 
 function _exit() {
@@ -792,6 +792,75 @@ $(document).ready(function(){
 		$('#result').select();
 		document.execCommand('copy');
 	});
+
+	$('#get_population_template').on('click', function() {
+		var res_data = "";
+		chrome.tabs.query({ active: true, lastFocusedWindow: true }, function (tabs) {
+			var pageURL = tabs[0].url;
+			var data;
+			  $.get({
+				url: pageURL,
+				async: false,
+			  }, function (dt) {
+				  data = dt;
+			  });
+				re = new RegExp('li class="interlanguage-link .+en\\.wikipedia\\.org\\/wiki\\/(\\S+)');
+				if (re.exec(data)) {
+					var results = data.match(re);
+					var eng = results[1].replace(/"/, '');
+					pageURL = "https://en.wikipedia.org/w/index.php?title=" + eng + "&action=raw";
+					  $.get({
+						url: pageURL,
+						async: false,
+					  }, function (dt) {
+						  data = dt;
+					  });
+					  var splits = data.split("\n");
+					  var flag = false;
+					  if (!data.match(/(\{\{) *(Historical *population|Historical *populations|USCensusPop|US *Census *population) *(\|)*/i)) {
+							alert("직접 사용된 틀 없음");
+							return;
+					  }
+						  for(var i = 0; i < splits.length; i++) {
+							re = new RegExp('(\\{\\{)(Historical *population|Historical *populations|USCensusPop|US *Census *population)', "i");
+							if (re.exec(splits[i])) {
+								if (flag) {
+									alert("인구 정보 2개 이상");
+								}
+								flag=true;
+								splits[i] = splits[i].replace(/(.+)(\{\{)(Historical *population|Historical *populations|USCensusPop|US *Census *population)/im, '\$2\$3');
+							} else {
+								var re2 = new RegExp('^ *(==|\\{ *\\| *class *=)');
+								if (re2.exec(splits[i])) {
+									flag = false;
+								}
+							}
+							if (flag) {
+								splits[i] = splits[i].replace(/\| *collapsed *= *(yes|y|1)/i, '');
+								res_data += splits[i] + "\n";
+							}
+						  }
+						  var re2 = new RegExp('\\{\\{ *efn *\\|');
+						  if (re2.exec(res_data)) {
+							  alert("내용주 포함");
+						  }
+						  re2 = new RegExp('<ref');
+						  if (!re2.exec(res_data)) {
+							  alert("각주 없음");
+						  }
+						  $("#result").val(res_data);
+						  conv_init();
+							$('#result').focus();
+							$('#result').select();
+							document.execCommand('copy');
+				} else {
+					alert("enwiki not found");
+					return;
+				}
+
+		});
+	});
+
 
 	$('#get_weather_template').on('click', function() {
 		var res_data = "";
