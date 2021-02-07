@@ -1,0 +1,9 @@
+.skin-vector-legacy #p-personal,
+.skin-vector-legacy #right-navigation
+{
+	margin-right: 300px;
+}
+
+html {
+	margin-right: 300px !important;
+}
