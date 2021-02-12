@@ -9,12 +9,14 @@ if (!location.ancestorOrigins.contains(extensionOrigin)) {
 						   'width:300px;z-index:1000;';
 
 	$(document).ready(function(){
-		var con = $( 'html' ).html().toString();
+		//var con = $( 'html' ).html().toString();
+		var con = document.documentElement.outerHTML;
 		var re = new RegExp('li class="interlanguage-link .+en\\.wikipedia\\.org\\/wiki\\/(\\S+)');
 		if (re.exec(con)) {
 			var results = con.match(re);
 			urlData.enTitle = results[1].replace(/"/, '');
 		}
+		urlData.htmlContent = con;
 
 		document.body.appendChild(iframe);
 

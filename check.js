@@ -745,6 +745,7 @@ $(document).ready(function(){
 	var en_data = "";
 	var enTitle = "";
 	var pageURL = "";
+	var htmlContent = "";
 
 	function check_en() {
 		$("body").css("background-color", "white");
@@ -775,6 +776,34 @@ $(document).ready(function(){
 		 } else {
 			  $("body").css("background-color", "#edfff2");
 		 }
+	}
+	
+	function check_search() {
+		if (/^https:\/\/ko.wikipedia.org\/w\/index.php\?(title=%ED%8A%B9%EC%88%98:%EA%B2%80%EC%83%89|search\=)/.test(pageURL)) {
+			var tmpCon = htmlContent.split(/\n/);
+			var resCon = "";
+			for (var i=0; i<tmpCon.length; i++) {
+				var line = tmpCon[i];
+				if (/ data-serp-pos="/.test(line)) {
+					var tmpCon2 = line.split(/data-serp-pos="/);
+					for (var i2=0; i2<tmpCon2.length; i2++) {
+						var line2 = tmpCon2[i2];
+						if (/ title="/.test(line2)) {
+							if (!/쪽마다/.test(line2)) {
+								resCon += line2.replace(/.* title="/, "").replace(/".*/, "") + "\n";
+							}
+						}
+					}
+				}
+			}
+			if (/\S/.test(resCon)) {
+				$("#result").show();
+				$("#result").val(resCon);
+				//$('#result').focus();
+				$('#result').select();
+				//document.execCommand('copy');
+			}
+		}
 	}
 
 	function clickEvents() {
@@ -941,7 +970,9 @@ $(document).ready(function(){
 		var obj = JSON.parse(e.data.urlData);
 		pageURL = obj.pageURL;
 		enTitle = obj.enTitle;
+		htmlContent = obj.htmlContent;
 		check_en();
+		check_search();
 		clickEvents();
 	};
 	window.top.postMessage('loaded', '*');
