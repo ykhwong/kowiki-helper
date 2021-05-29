@@ -752,9 +752,9 @@ $(document).ready(function(){
 		if (/\S/.test(enTitle)) {
 			$("#en_text").html(enTitle);
 			var en_pageURL = "https://en.wikipedia.org/w/index.php?title=" + enTitle + "&action=raw";
+				//async: false,
 			  $.get({
 				url: en_pageURL,
-				async: false,
 			  }, function (dt) {
 				  en_data = dt;
 				  $("body").css("background-color", "#edfff2");
@@ -772,12 +772,19 @@ $(document).ready(function(){
 							$('#get_weather_template').text(txt);
 						  }
 					}
+					proc();
 			  });
 		 } else {
 			  $("body").css("background-color", "#edfff2");
+			  proc();
 		 }
 	}
 	
+	function proc() {
+		check_search();
+		clickEvents();
+	}
+
 	function check_search() {
 		if (/^https:\/\/ko.wikipedia.org\/w\/index.php\?(title=%ED%8A%B9%EC%88%98:%EA%B2%80%EC%83%89|search\=)/.test(pageURL)) {
 			var tmpCon = htmlContent.split(/\n/);
@@ -876,7 +883,7 @@ $(document).ready(function(){
 										splits[i] = splits[i].replace(/\| *align *= *(\S*)/i, '');
 									}
 									res_data += splits[i];
-									if (/^\s*\}\}\s*$/.test(splits[i])) {
+									if (/^\s*(\|)*\}\}\s*$/.test(splits[i])) {
 										res_data += '{{-}}' + "\n\n";
 										break;
 									}
@@ -972,8 +979,8 @@ $(document).ready(function(){
 		enTitle = obj.enTitle;
 		htmlContent = obj.htmlContent;
 		check_en();
-		check_search();
-		clickEvents();
+		//check_search();
+		//clickEvents();
 	};
 	window.top.postMessage('loaded', '*');
 });
